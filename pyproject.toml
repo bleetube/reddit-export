@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=63.2.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reddit_export"
+version = "0.0.1"
+description = "Time to abandon Reddit."
+readme = "README.md"
+authors = [{ name = "blee", email = "git@blee.tube" }]
+license = { file = "LICENSE" }
+keywords = ["reddit"]
+dependencies = [
+    'build>=0.8.0',
+    'praw>=0.15.0',
+]
+requires-python = ">=3.8.10"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: System :: Monitoring",
+    "License :: OSI Approved :: Apache Software License",    
+]
+
+[project.urls]
+Homepage = "https://github.com/bleetube/reddit_export"
+
+# https://setuptools.pypa.io/en/latest/userguide/entry_point.html
+[project.scripts]
+reddit_export = "reddit_export.fetch:main"
