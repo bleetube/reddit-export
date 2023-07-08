@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 *.egg-info/
 dist/
+
+.env
+saved.csv
+upvoted.csv

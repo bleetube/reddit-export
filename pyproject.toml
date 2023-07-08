@@ -12,7 +12,9 @@ license = { file = "LICENSE" }
 keywords = ["reddit"]
 dependencies = [
     'build>=0.8.0',
-    'praw>=0.15.0',
+    'click>=8.1.4',
+    'requests>=2.31.0',
+    'praw>=7.7.0',
 ]
 requires-python = ">=3.8.10"
 classifiers = [
@@ -32,4 +34,4 @@ Homepage = "https://github.com/bleetube/reddit_export"
 
 # https://setuptools.pypa.io/en/latest/userguide/entry_point.html
 [project.scripts]
-reddit_export = "reddit_export.fetch:main"
+reddit-export = "reddit_export.click:cli"

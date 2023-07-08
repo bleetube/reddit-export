@@ -1,0 +1,5 @@
+export REDDIT_CLIENT_ID=$(pass reddit.com/CLIENT_ID)
+export REDDIT_CLIENT_SECRET=$(pass reddit.com/CLIENT_SECRET)
+export REDDIT_USERAGENT=$(pass reddit.com/USERAGENT)
+export REDDIT_USERNAME=$(pass reddit.com/USERNAME)
+export REDDIT_PASSWORD=$(pass reddit.com/PASSWORD)
