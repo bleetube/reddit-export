@@ -38,3 +38,7 @@ reddit-export --help
 
 * [Reddit API docs](https://old.reddit.com/dev/api)
 * [Python Reddit API Wrapper](https://praw.readthedocs.io/en/latest/index.html) - [repo](https://github.com/praw-dev/praw)
+
+## Bugs
+
+* no pagination yet, so results get cut off at some point (TODO)

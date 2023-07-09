@@ -15,6 +15,8 @@ reddit = praw.Reddit(
     password = environ.get("REDDIT_PASSWORD"),
 )
 reddit.user.me()
+# https://praw.readthedocs.io/en/latest/code_overview/models/redditor.html
+print([item.id for item in reddit.user.me().upvoted(limit=10)])
 """
 
 class RedditExport():
@@ -38,7 +40,7 @@ class RedditExport():
 
     def get_items(self, item_type):
         items = dict()
-        for item in getattr(self.reddit.user.me(), item_type)():
+        for item in getattr(self.reddit.user.me(), item_type)(limit=1000):
             try:
                 items[item.id] = item.url
                 logging.debug(f"{item.id}: {item.url}")
@@ -53,6 +55,32 @@ class RedditExport():
             csv_writer.writeheader()
             for key, value in items.items():
                 csv_writer.writerow({'id': key, 'url': value})
+
+    """Trying to figure out how to paginate:
+    def get_items(self, item_type):
+        items = dict()
+        after = None
+        while True:
+#           results = getattr(self.reddit.user.me(), item_type)(limit=100, after=after)
+            for item in results:
+                try:
+                    items[item.id] = item.url
+                    logging.debug(f"{item.id}: {item.url}")
+                except Exception as e:
+                    logging.debug(e)
+                    pass
+            if len(results) < 100:
+                break
+            after = results[-1].id
+
+        csv_file = f"{self.data_dir}/{item_type}.csv"
+        logging.info(f"Exporting {item_type} items to {csv_file}")
+        with open(csv_file, 'w') as file:
+            csv_writer = DictWriter(file, fieldnames=['id', 'url'])
+            csv_writer.writeheader()
+            for key, value in items.items():
+                csv_writer.writerow({'id': key, 'url': value})
+    """
 
 """does a file exist:
     if not path.exists(device_cache) or time() - path.getmtime(device_cache) > cache_age_sec:
