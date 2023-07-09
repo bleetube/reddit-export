@@ -20,8 +20,8 @@ is included as an example of using GNU pass.
 ## Usage
 
 ```
-reddit-export upvotes
-reddit-export saved
+$ reddit-export upvoted
+$ reddit-export saved
 ```
 
 ## Development

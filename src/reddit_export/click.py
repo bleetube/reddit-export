@@ -19,11 +19,11 @@ def cli():
 
 @click.command()
 def saved():
-    fetcher.get_saved()
+    fetcher.get_items('saved')
 
 @click.command()
-def upvotes():
-    fetcher.get_upvotes()
+def upvoted():
+    fetcher.get_items('upvoted')
 
-cli.add_command(upvotes)
+cli.add_command(upvoted)
 cli.add_command(saved)
