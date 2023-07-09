@@ -4,7 +4,9 @@ import subprocess
 import logging, json
 import praw
 import re
+import requests
 from time import sleep
+from pprint import pprint
 
 """Testing PRAW:
 from os import environ
@@ -47,21 +49,46 @@ class RedditExport():
             'v.redd.it',
             'redgifs.com',
         ]
+        image_extensions = [
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+            'gifv',
+        ]
 
         for item_type in ['saved', 'upvoted']:
             csv_file = f"{self.data_dir}/{item_type}.csv"
             with open(csv_file, 'r') as file:
                 csv_reader = DictReader(file)
                 rows = list(csv_reader)
+            output_dir = f"{self.data_dir}/{item_type}"
+            makedirs(output_dir, exist_ok=True)
             for row in rows:
+                if row.get('destination'):
+                    logging.debug("Skipping {url} because it has already been downloaded as {destination}".format(**row))
+                    continue
                 url = row['url'].replace('^http:', 'https:').replace('gfycat.com', 'redgifs.com/watch')
-                if any(domain in url for domain in yt_dlp_domains):
-                    if row.get('destination'):
-                        logging.info("Skipping {url} because it has already been downloaded as {destination}".format(**row))
+                row_index = rows.index(row)
+
+                # Save images
+                if any(url.endswith(ext) for ext in image_extensions):
+                    destination = f"{row['id']}.{url.split('.')[-1]}"
+                    logging.info(f"Downloading {url} to {item_type}/{destination}")
+
+                    try:
+                        response = requests.get(url)
+                        with open(f"{output_dir}/{destination}", 'wb') as f:
+                            f.write(response.content)
+                        rows[row_index]['destination'] = destination
+                    except Exception as e:
+                        logging.warning(f"Failed to download {url}: {e}")
+#                       rows[row_index]['destination'] = ''
+                        pass
                         continue
-                    output_dir = f"{self.data_dir}/{item_type}"
-                    makedirs(output_dir, exist_ok=True)
-                    row_index = rows.index(row)
+
+                # Call yt-dlp on videos
+                if any(domain in url for domain in yt_dlp_domains):
                     try:
                         result = subprocess.run(['yt-dlp', url], check=True, cwd=output_dir, stdout=subprocess.PIPE)
                         output = result.stdout.decode('utf-8')
@@ -71,14 +98,16 @@ class RedditExport():
                         rows[row_index]['destination'] = destination
                         logging.info(f"Downloaded {url} to {output_dir}/{destination}")
                     except Exception as e:
-                        rows[row_index]['destination'] = destination
+#                       rows[row_index]['destination'] = ''
                         logging.warning(f"Failed to download {url}: {e}")
                         pass
-                    sleep(3)
-            with open(csv_file, 'w') as file:
-                csv_writer = DictWriter(file, fieldnames=['id', 'url', 'destination'])
-                csv_writer.writeheader()
-                csv_writer.writerows(rows)
+                        continue
+
+                with open(csv_file, 'w') as file:
+                    csv_writer = DictWriter(file, fieldnames=['id', 'url', 'destination'])
+                    csv_writer.writeheader()
+                    csv_writer.writerows(rows)
+                sleep(1)
 
 
     def get_items(self, item_type):

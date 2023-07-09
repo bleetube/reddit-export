@@ -5,6 +5,7 @@ __pycache__/
 *.egg-info/
 dist/
 
+.stfolder/
 .env
 saved.csv
 upvoted.csv
