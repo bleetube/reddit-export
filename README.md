@@ -4,7 +4,7 @@ Captures the external URLs of Reddit submissions that you have upvoted or saved.
 
 ## Authentication
 
-Use the PRAW [Password Flow](https://praw.readthedocs.io/en/latest/getting_started/authentication.html) and place the secrets in a `.env` file in the directory where you'll run `reddit-export`:
+Use the PRAW [Password Flow](https://praw.readthedocs.io/en/latest/getting_started/authentication.html):
 
 ```
 export REDDIT_CLIENT_ID=
@@ -14,8 +14,7 @@ export REDDIT_USERNAME=
 export REDDIT_PASSWORD=
 ```
 
-Alternatively you can source them separately using your favorite secret store. `env`
-is included as an example of using GNU pass.
+Source them separately using your favorite secret store. [env](env) is included as an example of using GNU pass.
 
 ## Usage
 
@@ -44,4 +43,4 @@ reddit-export --help
 
 ## Bugs
 
-* no pagination yet, so results get cut off at some point (TODO)
+* no pagination yet, so results get cut off after 1000 results (I didn't need more then that)
