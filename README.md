@@ -22,7 +22,10 @@ is included as an example of using GNU pass.
 ```
 $ reddit-export upvoted
 $ reddit-export saved
+$ reddit-export content
 ```
+
+The `content` arg can resume downloads, for example if you get rate limited by a CDN you can just run it again later. Be aware that `upvoted` and `saved` will overwrite the csv files, removing the scripts awareness of download progress resulting in downloading everything again. So only run the first two commands once!
 
 ## Development
 

@@ -51,7 +51,11 @@ class RedditExport():
         ]
         video_extensions = [
             'mp4',
+            'm4v',
+            'mov',
+            'mkv',
             'gifv',
+            'oggv',
             'webm',
         ]
         image_extensions = [
@@ -59,6 +63,7 @@ class RedditExport():
             'jpeg',
             'png',
             'gif',
+            'webp',
         ]
 
         for item_type in ['saved', 'upvoted']:
@@ -82,7 +87,7 @@ class RedditExport():
 
                     try:
                         response = requests.get(url)
-
+                        response.raise_for_status()
                         content_type = response.headers.get('content-type')
                         logging.info(f"Response type: {content_type}")
                         if 'image' not in content_type:
@@ -92,6 +97,10 @@ class RedditExport():
                         with open(f"{output_dir}/{destination}", 'wb') as f:
                             f.write(response.content)
                         rows[row_index]['destination'] = destination
+                    except requests.exceptions.HTTPError as e:
+                        if e.response.status_code == 429:
+                            logging.error(f"Rate limit exceeded: {e}")
+                            break
                     except Exception as e:
                         logging.warning(f"Failed to download {url}: {e}")
 #                       rows[row_index]['destination'] = ''
@@ -110,6 +119,8 @@ class RedditExport():
                         destination = match.group(1) if match else ''
                         rows[row_index]['destination'] = destination
                         logging.info(f"Downloaded {url} to {output_dir}/{destination}")
+                        # avoid 429s
+                        sleep(10)
                     except Exception as e:
 #                       rows[row_index]['destination'] = ''
                         logging.warning(f"Failed to download {url}: {e}")
@@ -120,7 +131,7 @@ class RedditExport():
                     csv_writer = DictWriter(file, fieldnames=['id', 'url', 'destination'])
                     csv_writer.writeheader()
                     csv_writer.writerows(rows)
-                sleep(1)
+                sleep(3)
 
 
     def get_items(self, item_type):
