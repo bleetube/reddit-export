@@ -49,12 +49,16 @@ class RedditExport():
             'v.redd.it',
             'redgifs.com',
         ]
+        video_extensions = [
+            'mp4',
+            'gifv',
+            'webm',
+        ]
         image_extensions = [
             'jpg',
             'jpeg',
             'png',
             'gif',
-            'gifv',
         ]
 
         for item_type in ['saved', 'upvoted']:
@@ -78,6 +82,13 @@ class RedditExport():
 
                     try:
                         response = requests.get(url)
+
+                        content_type = response.headers.get('content-type')
+                        logging.info(f"Response type: {content_type}")
+                        if 'image' not in content_type:
+                            logging.warning(f"Got {content_type} response for {url}")
+                            continue
+
                         with open(f"{output_dir}/{destination}", 'wb') as f:
                             f.write(response.content)
                         rows[row_index]['destination'] = destination
@@ -88,7 +99,9 @@ class RedditExport():
                         continue
 
                 # Call yt-dlp on videos
-                if any(domain in url for domain in yt_dlp_domains):
+                if  any(domain in url for domain in yt_dlp_domains) or \
+                    any(url.endswith(ext) for ext in video_extensions):
+
                     try:
                         result = subprocess.run(['yt-dlp', url], check=True, cwd=output_dir, stdout=subprocess.PIPE)
                         output = result.stdout.decode('utf-8')
