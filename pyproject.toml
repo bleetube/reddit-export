@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reddit_export"
-version = "0.0.1"
+version = "0.0.2"
 description = "Time to abandon Reddit."
 readme = "README.md"
 authors = [{ name = "blee", email = "git@blee.tube" }]

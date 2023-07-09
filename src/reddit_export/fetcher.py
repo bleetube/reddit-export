@@ -1,8 +1,10 @@
-from os import environ, getcwd, path
+from os import environ, getcwd, path, makedirs
 from csv import DictReader, DictWriter
+import subprocess
 import logging, json
 import praw
-import pprint
+import re
+from time import sleep
 
 """Testing PRAW:
 from os import environ
@@ -38,6 +40,47 @@ class RedditExport():
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(log_level)
 
+    def capture_content(self):
+        """Read the csv files, call yt-dlp to download the content, and update the csv files with the local path"""
+
+        yt_dlp_domains = [
+            'v.redd.it',
+            'redgifs.com',
+        ]
+
+        for item_type in ['saved', 'upvoted']:
+            csv_file = f"{self.data_dir}/{item_type}.csv"
+            with open(csv_file, 'r') as file:
+                csv_reader = DictReader(file)
+                rows = list(csv_reader)
+            for row in rows:
+                url = row['url'].replace('^http:', 'https:').replace('gfycat.com', 'redgifs.com/watch')
+                if any(domain in url for domain in yt_dlp_domains):
+                    if row.get('destination'):
+                        logging.info("Skipping {url} because it has already been downloaded as {destination}".format(**row))
+                        continue
+                    output_dir = f"{self.data_dir}/{item_type}"
+                    makedirs(output_dir, exist_ok=True)
+                    row_index = rows.index(row)
+                    try:
+                        result = subprocess.run(['yt-dlp', url], check=True, cwd=output_dir, stdout=subprocess.PIPE)
+                        output = result.stdout.decode('utf-8')
+                        logging.info(output)
+                        match = re.search(r'\[download\] Destination: (.*)', output)
+                        destination = match.group(1) if match else ''
+                        rows[row_index]['destination'] = destination
+                        logging.info(f"Downloaded {url} to {output_dir}/{destination}")
+                    except Exception as e:
+                        rows[row_index]['destination'] = destination
+                        logging.warning(f"Failed to download {url}: {e}")
+                        pass
+                    sleep(3)
+            with open(csv_file, 'w') as file:
+                csv_writer = DictWriter(file, fieldnames=['id', 'url', 'destination'])
+                csv_writer.writeheader()
+                csv_writer.writerows(rows)
+
+
     def get_items(self, item_type):
         items = dict()
         for item in getattr(self.reddit.user.me(), item_type)(limit=1000):
@@ -51,10 +94,10 @@ class RedditExport():
         csv_file = f"{self.data_dir}/{item_type}.csv"
         logging.info(f"Exporting {item_type} items to {csv_file}")
         with open(csv_file, 'w') as file:
-            csv_writer = DictWriter(file, fieldnames=['id', 'url'])
+            csv_writer = DictWriter(file, fieldnames=['id', 'url','destination'])
             csv_writer.writeheader()
             for key, value in items.items():
-                csv_writer.writerow({'id': key, 'url': value})
+                csv_writer.writerow({'id': key, 'url': value, 'destination': ''})
 
     """Trying to figure out how to paginate:
     def get_items(self, item_type):

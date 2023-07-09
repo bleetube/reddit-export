@@ -2,7 +2,6 @@ import click
 import logging
 from .fetcher import RedditExport
 
-# console logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -12,11 +11,6 @@ fetcher = RedditExport(log_level=logger.getEffectiveLevel())
 def cli():
     pass
 
-#@click.command()
-#@click.argument('myarg')
-#@click.option('--myflag', help='', is_flag=True)
-#def check_group(group_name, add_missing=False, fix_names=False):
-
 @click.command()
 def saved():
     fetcher.get_items('saved')
@@ -25,5 +19,10 @@ def saved():
 def upvoted():
     fetcher.get_items('upvoted')
 
+@click.command()
+def content():
+    fetcher.capture_content()
+
+cli.add_command(content)
 cli.add_command(upvoted)
 cli.add_command(saved)

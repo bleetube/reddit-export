@@ -8,3 +8,5 @@ dist/
 .env
 saved.csv
 upvoted.csv
+upvoted/
+saved/
